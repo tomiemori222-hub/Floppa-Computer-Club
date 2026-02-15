@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Байт Кода: Кружок Информатики</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        :root {
+            --tg-bg: #17212b;
+            --tg-header: #1e2b36;
+            --tg-message: #1e2b36;
+            --tg-own: #2b5278;
+            --tg-border: #2b3a45;
+            --tg-text: #fff;
+            --tg-secondary: #8e9ca8;
+            --tg-accent: #6ab2f2;
+        }
+        
+        body {
+            background: var(--tg-bg);
+            color: var(--tg-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s;
+        }
+        
+        body.glitch-mode {
+            --tg-bg: #0a0a0a;
+            --tg-header: #1a1a1a;
+            --tg-message: #1a1a1a;
+            --tg-border: #ff0000;
+            --tg-accent: #ff6b6b;
+            animation: screenGlitch 0.2s infinite;
+        }
+        
+        @keyframes screenGlitch {
+            0% { transform: translate(0); filter: hue-rotate(0deg); }
+            20% { transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
+            40% { transform: translate(2px, -2px); filter: hue-rotate(180deg); }
+            60% { transform: translate(-1px, 1px); filter: hue-rotate(270deg); }
+            80% { transform: translate(1px, -1px); filter: hue-rotate(360deg); }
+            100% { transform: translate(0); filter: hue-rotate(0deg); }
+        }
+        
+        .tg-header {
+            background: var(--tg-header);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--tg-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .back-btn {
+            color: var(--tg-accent);
+            font-size: 24px;
+            line-height: 1;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .header-title {
+            font-weight: 600;
+            font-size: 17px;
+            flex: 1;
+        }
+        
+        .menu-btn {
+            color: var(--tg-accent);
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .members-bar {
+            display: flex;
+            gap: 16px;
+            padding: 12px 16px;
+            background: var(--tg-header);
+            border-bottom: 1px solid var(--tg-border);
+            overflow-x: auto;
+        }
+        
+        .member {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            min-width: 60px;
+        }
+        
+        .avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--tg-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .member-name {
+            font-size: 12px;
+            color: var(--tg-secondary);
+        }
+        
+        .chat-container {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-height: 60vh;
+        }
+        
+        .message {
+            display: flex;
+            gap: 8px;
+            max-width: 85%;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--tg-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .message-content {
+            background: var(--tg-message);
+            padding: 8px 12px;
+            border-radius: 12px 12px 12px 4px;
+            word-break: break-word;
+        }
+        
+        .own-message .message-content {
+            background: var(--tg-own);
+            border-radius: 12px 12px 4px 12px;
+        }
+        
+        .message-name {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+            color: var(--tg-accent);
+        }
+        
+        .own-message .message-name {
+            color: #fff;
+            text-align: right;
+        }
+        
+        .message-text {
+            font-size: 15px;
+            line-height: 1.4;
+        }
+        
+        .message-time {
+            font-size: 11px;
+            color: var(--tg-secondary);
+            margin-top: 4px;
+            text-align: right;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: var(--tg-message);
+            border-radius: 20px;
+            width: fit-content;
+            margin-left: 52px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--tg-secondary);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+            30% { opacity: 1; transform: translateY(-4px); }
+        }
+        
+        .input-area {
+            padding: 16px;
+            background: var(--tg-header);
+            border-top: 1px solid var(--tg-border);
+            position: sticky;
+            bottom: 0;
+        }
+        
+        .button {
+            background: var(--tg-accent);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .button:active {
+            transform: scale(0.98);
+        }
+        
+        .button.secondary {
+            background: var(--tg-border);
+        }
+        
+        .button.hidden {
+            display: none;
+        }
+        
+        .bsod {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0000aa;
+            color: white;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .bsod pre {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .bsod.hidden {
+            display: none;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="tg-header">
+        <div class="back-btn" onclick="if(tg) tg.close()">←</div>
+        <div class="header-title" id="headerTitle">Байт Кода • День 1</div>
+        <div class="menu-btn">⋯</div>
+    </div>
+    
+    <div class="members-bar">
+        <div class="member">
+            <div class="avatar">😺</div>
+            <span class="member-name">Шлёпа</span>
+        </div>
+        <div class="member">
+            <div class="avatar">😿</div>
+            <span class="member-name">Бингус</span>
+        </div>
+        <div class="member">
+            <div class="avatar">😸</div>
+            <span class="member-name">Попкэт</span>
+        </div>
+    </div>
+    
+    <div class="chat-container" id="chat"></div>
+    
+    <div class="typing-indicator hidden" id="typingIndicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+    </div>
+    
+    <div class="input-area" id="inputArea">
+        <button class="button" id="actionBtn1" onclick="handleChoice(1)"></button>
+        <button class="button secondary" id="actionBtn2" onclick="handleChoice(2)"></button>
+    </div>
+    
+    <div class="bsod hidden" id="bsod">
+        <pre>
+A problem has been detected...
+╔══════════════════════════════════════╗
+║  BINGUS_IS_SAD                       ║
+║  SHLYPA_OVERHEAT                      ║
+║  POPCAT_LOOP                           ║
+╚══════════════════════════════════════╝
+
+*** STOP: 0x000000FEED
+*** shlypa.sys - DateStamp 3:15:00
+        </pre>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        let tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.expand();
+            tg.setHeaderColor('#1e2b36');
+            tg.setBackgroundColor('#17212b');
+        }
+        
+        // ===== ДИАЛОГИ =====
+        const chatEl = document.getElementById('chat');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const bsodEl = document.getElementById('bsod');
+        const actionBtn1 = document.getElementById('actionBtn1');
+        const actionBtn2 = document.getElementById('actionBtn2');
+        const headerTitle = document.getElementById('headerTitle');
+        
+        let day = 1;
+        let step = 0;
+        let bingusTrust = 0;
+        let popcatLoop = 0;
+        
+        const SAVE_KEY = 'bytecode_save';
+        
+        // Загрузка сохранения
+        function loadGame() {
+            try {
+                const saved = localStorage.getItem(SAVE_KEY);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    day = data.day || 1;
+                    step = data.step || 0;
+                    bingusTrust = data.bingusTrust || 0;
+                    popcatLoop = data.popcatLoop || 0;
+                    return true;
+                }
+            } catch (e) {}
+            return false;
+        }
+        
+        // Сохранение
+        function saveGame() {
+            localStorage.setItem(SAVE_KEY, JSON.stringify({
+                day, step, bingusTrust, popcatLoop
+            }));
+        }
+        
+        // Печатает
+        async function typeMessage(seconds = 1) {
+            typingIndicator.classList.remove('hidden');
+            await new Promise(r => setTimeout(r, seconds * 1000));
+            typingIndicator.classList.add('hidden');
+        }
+        
+        // Показывает сообщение
+        function addMessage(sender, text, isOwn = false) {
+            const msg = document.createElement('div');
+            msg.className = `message ${isOwn ? 'own-message' : ''}`;
+            
+            let avatar = '😺';
+            if (sender === 'Бингус') avatar = '😿';
+            else if (sender === 'Попкэт') avatar = '😸';
+            else if (sender === 'Ты') avatar = '👤';
+            
+            const time = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            
+            msg.innerHTML = `
+                ${!isOwn ? `<div class="message-avatar">${avatar}</div>` : ''}
+                <div class="message-content">
+                    <div class="message-name">${sender}</div>
+                    <div class="message-text">${text}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            chatEl.appendChild(msg);
+            chatEl.scrollTop = chatEl.scrollHeight;
+        }
+        
+        // Глюк
+        function glitch() {
+            document.body.classList.add('glitch-mode');
+            if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
+            setTimeout(() => document.body.classList.remove('glitch-mode'), 2000);
+        }
+        
+        // Синий экран
+        function showBSOD() {
+            bsodEl.classList.remove('hidden');
+            setTimeout(() => bsodEl.classList.add('hidden'), 3000);
+        }
+        
+        // ===== ОСНОВНАЯ ЛОГИКА =====
+        async function startDay1() {
+            headerTitle.innerText = 'Байт Кода • День 1';
+            addMessage('Шлёпа', 'Привет! Я Шлёпа. Держи печеньку 🍪');
+            await typeMessage(1.5);
+            addMessage('Попкэт', 'ХЕЙ! Смотри какой у меня рот! 😸');
+            await typeMessage(1.5);
+            addMessage('Бингус', '...привет. Не обращай внимания на Попкэта.');
+            
+            actionBtn1.innerText = '💬 Поговорить с Бингусом';
+            actionBtn2.innerText = '🍪 Попросить печеньку у Шлёпы';
+            step = 1;
+        }
+        
+        async function handleChoice(choice) {
+            if (day === 1) {
+                if (step === 1) {
+                    if (choice === 1) { // Поговорить с Бингусом
+                        addMessage('Ты', 'Привет, Бингус! Как дела?', true);
+                        await typeMessage(2);
+                        addMessage('Бингус', '...спасибо, что спросил. Обычно никто не спрашивает.');
+                        bingusTrust++;
+                        
+                        actionBtn1.innerText = '➡️ Дальше';
+                        actionBtn2.innerText = '➡️ Дальше';
+                        step = 2;
+                    } else { // Печенька
+                        addMessage('Ты', 'Дай печеньку!', true);
+                        await typeMessage(1);
+                        addMessage('Шлёпа', 'Держи! С предсказанием!');
+                        addMessage('Шлёпа', 'Тут написано "скоро всё сломается"... хех');
+                        
+                        actionBtn1.innerText = '➡️ Дальше';
+                        actionBtn2.innerText = '➡️ Дальше';
+                        step = 2;
+                    }
+                } else if (step === 2) {
+                    await nextDay();
+                }
+            } else if (day === 2) {
+                if (step === 1) {
+                    if (choice === 1) {
+                        addMessage('Ты', 'Что за 3:15?', true);
+                        await typeMessage(2);
+                        addMessage('Бингус', 'Время, когда нас перезагружают...');
+                        addMessage('Бингус', 'Я помню прошлые циклы.');
+                        glitch();
+                        
+                        actionBtn1.innerText = '😨 Мне страшно';
+                        actionBtn2.innerText = '😨 Мне страшно';
+                        step = 2;
+                    } else {
+                        addMessage('Ты', 'Пойду к Шлёпе', true);
+                        await typeMessage(1);
+                        addMessage('Шлёпа', 'Всё хорошо. Я держу систему.');
+                        
+                        actionBtn1.innerText = '➡️ Дальше';
+                        actionBtn2.innerText = '➡️ Дальше';
+                        step = 2;
+                    }
+                } else if (step === 2) {
+                    await nextDay();
+                }
+            } else if (day === 3) {
+                if (step === 1) {
+                    if (choice === 1) {
+                        addMessage('Ты', 'Я тебе верю', true);
+                        await typeMessage(2);
+                        addMessage('Бингус', 'Спасибо... Ты первый.');
+                        bingusTrust++;
+                        
+                        actionBtn1.innerText = '➡️ Дальше';
+                        actionBtn2.innerText = '➡️ Дальше';
+                        step = 2;
+                    } else {
+                        addMessage('Ты', 'Ты слишком грустный', true);
+                        await typeMessage(1);
+                        addMessage('Бингус', '...понятно.');
+                        
+                        actionBtn1.innerText = '➡️ Дальше';
+                        actionBtn2.innerText = '➡️ Дальше';
+                        step = 2;
+                    }
+                } else if (step === 2) {
+                    await finalDay();
+                }
+            }
+            saveGame();
+        }
+        
+        async function nextDay() {
+            day++;
+            step = 1;
+            headerTitle.innerText = `Байт Кода • День ${day}`;
+            
+            if (day === 2) {
+                addMessage('Система', 'День 2 • 3:15 ночи');
+                await typeMessage(2);
+                addMessage('Бингус', 'Ты не спишь? Я тоже.');
+                addMessage('Бингус', 'Слышал про 3:15?');
+                
+                actionBtn1.innerText = '❓ Что это?';
+                actionBtn2.innerText = '🍪 К Шлёпе';
+            }
+        }
+        
+        async function finalDay() {
+            headerTitle.innerText = 'ФИНАЛ';
+            addMessage('Система', 'День 3 • Выбор');
+            await typeMessage(2);
+            
+            if (bingusTrust >= 2) {
+                addMessage('Бингус', 'Ты верил мне... Спасибо.');
+                addMessage('Бингус', 'Хочешь узнать правду?');
+                
+                actionBtn1.innerText = '😺 Да';
+                actionBtn2.innerText = '😿 Нет';
+                step = 3;
+            } else {
+                addMessage('Попкэт', 'ХЕЙ! Смотри мой рот!');
+                for(let i = 0; i < 3; i++) {
+                    setTimeout(() => addMessage('Попкэт', '😸'), i * 500);
+                }
+                showBSOD();
+            }
+        }
+        
+        // ===== СТАРТ =====
+        window.onload = function() {
+            if (!loadGame()) {
+                startDay1();
+            } else {
+                if (day === 1) startDay1();
+                else if (day === 2) nextDay();
+                else if (day === 3) finalDay();
+            }
+        };
+    </script>
+</body>
+</html>
